@@ -1,4 +1,4 @@
-# 🎯 HabitTracker - Gamified Habit Management System
+# 🎯 HabitTracker - Oyunlaştırılmış Alışkanlık Takip Sistemi
 
 ![Banner](HabitTracker/screenshots/4-confetti-celebration.png)
 
