@@ -1,0 +1,243 @@
+﻿@model List<HabitTracker.Models.Habit>
+
+@{
+    ViewData["Title"] = "Ana Sayfa";
+    Layout = null;
+
+    int totalHabits = Model.Count;
+    int completedHabits = Model.Count(h => h.HabitCompletions.Any(hc => hc.CompletionDate.Date == DateTime.Today));
+
+    int progressPercent = totalHabits > 0 ? (int)((double)completedHabits / totalHabits * 100) : 0;
+
+    bool triggerConfetti = totalHabits > 0 && totalHabits == completedHabits;
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .habit-item {
+        transition: all 0.3s ease;
+    }
+
+    .hidden-habit {
+        display: none !important;
+    }
+</style>
+
+<div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex flex-col justify-between">
+
+    <div>
+        <nav class="bg-white/70 backdrop-blur-md border-b border-white/30 sticky top-0 z-50 px-6 py-4 shadow-sm">
+            <div class="max-w-4xl mx-auto flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-gradient-to-tr from-blue-500 to-purple-500 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transform rotate-3">
+                        <i class="fa-solid fa-check text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800 tracking-tight">HabitTracker</h1>
+                        <p class="text-xs text-gray-500">Hoş geldin, @ViewBag.CurrentUser.Username 👋</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    @if (ViewBag.CurrentUser.Role == "Admin")
+                    {
+                        <a href="/Admin/Index" class="hidden md:flex items-center space-x-2 bg-gray-900 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-gray-700 transition shadow-lg mr-2 no-underline">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>Yönetim</span>
+                        </a>
+                    }
+
+                    <div class="hidden md:block text-right">
+                        <div class="text-xs font-bold text-gray-600 mb-1">Seviye @ViewBag.CurrentUser.Level</div>
+                        <div class="w-32 h-2.5 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+                            <div class="bg-gradient-to-r from-teal-400 to-blue-500 h-full rounded-full transition-all duration-700"
+                                 style="width: @(ViewBag.CurrentUser.ExperiencePoints % 100)%"></div>
+                        </div>
+                    </div>
+
+                    <a href="/Account/Profile" class="w-10 h-10 rounded-full bg-white p-0.5 shadow-md hover:scale-105 transition border border-gray-100 overflow-hidden">
+                        @if (!string.IsNullOrEmpty(ViewBag.CurrentUser.ProfileImageUrl))
+                        {
+                            <img src="@ViewBag.CurrentUser.ProfileImageUrl" class="w-full h-full object-cover rounded-full" />
+                        }
+                        else
+                        {
+                            <div class="w-full h-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold rounded-full">
+                                @ViewBag.CurrentUser.Username.Substring(0, 1).ToUpper()
+                            </div>
+                        }
+                    </a>
+
+                    <a href="/Account/Logout" class="text-gray-400 hover:text-red-500 transition ml-2" title="Çıkış">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="max-w-3xl mx-auto mt-8 px-4 pb-24">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">Bugünün Görevleri</h2>
+                    <p class="text-gray-500 mt-1 flex items-center">
+                        <i class="fa-regular fa-calendar mr-2"></i> @DateTime.Now.ToString("dd MMMM dddd")
+                        <span class="ml-3 bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded text-xs font-bold">
+                            %@progressPercent Tamamlandı
+                        </span>
+                    </p>
+                </div>
+
+                <div class="mt-4 md:mt-0 relative w-full md:w-64">
+                    <input type="text" id="searchInput" placeholder="Alışkanlık ara..."
+                           class="w-full px-4 py-2.5 pl-10 rounded-xl bg-white/60 backdrop-blur-sm border border-white/40 focus:bg-white focus:ring-2 focus:ring-indigo-300 outline-none transition-all shadow-sm text-gray-700 text-sm">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                </div>
+            </div>
+
+            <div class="w-full h-1.5 bg-gray-200 rounded-full mb-6 overflow-hidden">
+                <div class="bg-green-500 h-full rounded-full transition-all duration-1000 ease-out" style="width: @progressPercent%"></div>
+            </div>
+
+            <div class="space-y-4" id="habitList">
+                @if (Model.Count == 0)
+                {
+                    <div class="text-center py-16 bg-white/50 backdrop-blur-sm rounded-3xl border border-white/40 shadow-sm">
+                        <div class="bg-indigo-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-500 text-3xl">
+                            <i class="fa-solid fa-rocket"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-700">Henüz hiç alışkanlığın yok!</h3>
+                        <p class="text-gray-500 mt-2 text-sm">Sağ alttaki + butonuna basarak ilk adımını at.</p>
+                    </div>
+                }
+                else if (progressPercent == 100)
+                {
+                    <div class="bg-green-100 border border-green-200 p-4 rounded-2xl flex items-center mb-4 animate-bounce">
+                        <i class="fa-solid fa-trophy text-green-600 text-2xl mr-3"></i>
+                        <div>
+                            <h4 class="font-bold text-green-800">Tebrikler! 🎉</h4>
+                            <p class="text-sm text-green-700">Bugünkü tüm hedeflerini tamamladın. Harikasın!</p>
+                        </div>
+                    </div>
+                }
+
+                @foreach (var item in Model)
+                {
+                    var isCompleted = item.HabitCompletions.Any(hc => hc.CompletionDate.Date == DateTime.Today);
+
+                    <div class="habit-item group bg-white/80 backdrop-blur-md p-5 rounded-2xl shadow-lg border border-white/50 flex items-center justify-between transition-all duration-300 hover:scale-[1.01] hover:shadow-xl relative overflow-hidden">
+                        <div class="flex items-center space-x-4 z-10">
+                            <div class="relative">
+                                <input type="checkbox"
+                                       class="peer appearance-none w-8 h-8 rounded-xl border-2 border-indigo-200 checked:bg-indigo-500 checked:border-indigo-500 transition-all cursor-pointer"
+                                       onclick="toggleHabit(@item.HabitID)"
+                                @(isCompleted ? "checked" : "") />
+                                <i class="fa-solid fa-check text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 peer-checked:opacity-100 pointer-events-none transition-all text-lg"></i>
+                            </div>
+
+                            <div>
+                                <h3 class="habit-name text-lg font-bold text-gray-800 @(isCompleted ? "line-through text-gray-400" : "") transition-all duration-300">
+                                    @Html.Raw(item.Name)
+                                </h3>
+                                <div class="flex items-center space-x-2 text-xs text-gray-500 mt-0.5">
+                                    <span class="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-md font-medium border border-indigo-100">@item.Category</span>
+                                    @if (item.Reminder != null && item.Reminder.IsActive)
+                                    {
+                                        <span class="flex items-center text-orange-500 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-100">
+                                            <i class="fa-regular fa-clock mr-1"></i> @item.Reminder.ReminderTime.ToString(@"hh\:mm")
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                            <a href="/Habit/Edit/@item.HabitID" class="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 transition"><i class="fa-solid fa-pen"></i></a>
+                            <form action="/Habit/Delete/@item.HabitID" method="post" onsubmit="return confirm('Silmek istediğine emin misin?');">
+                                <button type="submit" class="w-9 h-9 flex items-center justify-center rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition"><i class="fa-solid fa-trash"></i></button>
+                            </form>
+                        </div>
+                        @if (isCompleted)
+                        {
+                            <div class="absolute inset-0 bg-gradient-to-r from-green-50/50 to-transparent pointer-events-none"></div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-white/60 backdrop-blur-md border-t border-white/40 py-6 mt-auto">
+        <div class="max-w-4xl mx-auto text-center px-4">
+            <p class="text-sm text-gray-500">
+                &copy; 2025 <span class="font-bold text-indigo-600">HabitTracker</span>.
+                Geliştirici: <span class="font-bold text-gray-800">@ViewBag.CurrentUser.Username</span> 🚀
+            </p>
+            <div class="flex justify-center space-x-4 mt-2 text-gray-400 text-lg">
+                <a href="#" class="hover:text-indigo-500 transition"><i class="fa-brands fa-github"></i></a>
+                <a href="#" class="hover:text-blue-500 transition"><i class="fa-brands fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <a href="/Habit/Create" class="fixed bottom-8 right-8 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white w-16 h-16 rounded-full shadow-lg shadow-blue-500/40 flex items-center justify-center text-2xl transition-transform hover:scale-110 hover:rotate-90 duration-300 z-50">
+        <i class="fa-solid fa-plus"></i>
+    </a>
+</div>
+
+<script>
+    var shouldTriggerConfetti = @Json.Serialize(triggerConfetti);
+
+    if (shouldTriggerConfetti === true) {
+        var colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#00ffff', '#ff00ff'];
+
+        var end = Date.now() + (1 * 1000);
+        (function frame() {
+            confetti({ particleCount: 7, angle: 60, spread: 55, origin: { x: 0, y: 0.8 }, colors: colors, shapes: ['circle', 'square'] });
+            confetti({ particleCount: 7, angle: 120, spread: 55, origin: { x: 1, y: 0.8 }, colors: colors, shapes: ['circle', 'square'] });
+            if (Date.now() < end) { requestAnimationFrame(frame); }
+        }());
+
+        setTimeout(function() {
+            var duration = 5 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 120, zIndex: 0, shapes: ['circle', 'square'], colors: colors };
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) { return clearInterval(interval); }
+                var particleCount = 100 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.9), y: Math.random() - 0.2 } }));
+            }, 200);
+        }, 500);
+    }
+
+    const searchInput = document.getElementById('searchInput');
+    const habitItems = document.querySelectorAll('.habit-item');
+    searchInput.addEventListener('keyup', function() {
+        const query = this.value.toLowerCase().trim();
+        habitItems.forEach(item => {
+            const name = item.querySelector('.habit-name').innerText.toLowerCase();
+            item.classList.toggle('hidden-habit', !name.includes(query));
+        });
+    });
+
+    function toggleHabit(id) {
+        fetch('/Habit/ToggleStatus/' + id, { method: 'POST' }).then(r => { if (r.ok) location.reload(); });
+    }
+
+    var myReminders = @Html.Raw(Json.Serialize(Model.Where(h => h.Reminder != null && h.Reminder.IsActive).Select(h => new { habitName = h.Name, time = h.Reminder.ReminderTime.ToString(@"hh\:mm") })));
+    if (Notification.permission !== "granted") Notification.requestPermission();
+    setInterval(function() {
+        var now = new Date();
+        var currentTime = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
+        myReminders.forEach(r => { if (r.time === currentTime) new Notification("⏰ Hatırlatıcı", { body: r.habitName + " zamanı!" }); });
+    }, 30000);
+</script>

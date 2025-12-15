@@ -1,0 +1,123 @@
+﻿@model HabitTracker.Models.Habit
+
+@{
+    ViewData["Title"] = "Yeni Alışkanlık";
+    Layout = null;
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
+</style>
+
+<div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-4">
+
+    <div class="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-2xl w-full max-w-lg border border-white/60">
+
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 tracking-tight">Yeni Alışkanlık ✨</h2>
+            <p class="text-gray-500 text-sm mt-1">Hayatına pozitif bir dokunuş ekle</p>
+        </div>
+
+        <form method="post" action="/Habit/Create" class="space-y-5">
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Alışkanlık Adı</label>
+                <input class="w-full px-4 py-3 rounded-xl bg-white/50 border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all placeholder-gray-400"
+                       type="text" name="Name" placeholder="Örn: 30 Dakika Yürüyüş" required />
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Kategori</label>
+                <div class="relative">
+                    <select name="Category" class="w-full px-4 py-3 rounded-xl bg-white/50 border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none appearance-none cursor-pointer transition-all text-gray-700">
+                        <option value="Sağlık">Sağlık 🍎</option>
+                        <option value="Kişisel Gelişim">Kişisel Gelişim 📚</option>
+                        <option value="Okul / İş">Okul / İş 💼</option>
+                        <option value="Spor">Spor 🏋️‍♂️</option>
+                        <option value="Diğer">Diğer 🌟</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
+                        <i class="fa-solid fa-chevron-down text-xs"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Sıklık</label>
+                <div class="flex space-x-4">
+                    <label class="flex items-center space-x-2 cursor-pointer bg-white/50 px-4 py-2 rounded-lg border border-gray-200 hover:bg-white transition-all w-1/2 justify-center">
+                        <input type="radio" name="Frequency" value="Günlük" checked class="text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                        <span class="text-gray-700 font-medium">Günlük</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer bg-white/50 px-4 py-2 rounded-lg border border-gray-200 hover:bg-white transition-all w-1/2 justify-center">
+                        <input type="radio" name="Frequency" value="Haftalık" class="text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                        <span class="text-gray-700 font-medium">Haftalık</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="p-4 bg-yellow-50/80 rounded-xl border border-yellow-100 transition-all">
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" id="reminderCheck" name="Reminder.IsActive" value="true"
+                           onclick="toggleTimeInput()"
+                           class="h-5 w-5 text-yellow-600 rounded focus:ring-yellow-500 border-gray-300 transition-all cursor-pointer">
+                    <span class="ml-3 text-gray-800 font-medium flex items-center">
+                        <i class="fa-regular fa-clock mr-2 text-yellow-600"></i> Hatırlatıcı Ekle
+                    </span>
+                </label>
+
+                <div id="timeInputDiv" class="hidden mt-3 ml-8 animate-fade-in">
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Saat Seçin</label>
+                    <input type="time" name="Reminder.ReminderTime"
+                           class="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-yellow-200 outline-none cursor-pointer">
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4 pt-2">
+                <a href="/Home/Index" class="w-1/3 py-3 rounded-xl bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-all text-center shadow-sm no-underline">
+                    İptal
+                </a>
+                <button type="submit" class="w-2/3 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg shadow-blue-500/30 transform hover:scale-[1.02] transition-all duration-200">
+                    Kaydet
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleTimeInput() {
+        var checkBox = document.getElementById("reminderCheck");
+        var timeDiv = document.getElementById("timeInputDiv");
+        if (checkBox.checked) {
+            timeDiv.classList.remove("hidden");
+        } else {
+            timeDiv.classList.add("hidden");
+        }
+    }
+</script>
+
+<style>
+    /* Küçük bir animasyon efekti */
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-5px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>

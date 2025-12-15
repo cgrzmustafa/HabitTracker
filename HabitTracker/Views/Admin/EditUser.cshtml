@@ -1,0 +1,47 @@
+﻿@model HabitTracker.Models.User
+@{
+    Layout = null;
+}
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
+</style>
+
+<div class="min-h-screen bg-gray-100 flex items-center justify-center p-6">
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border-t-4 border-yellow-500">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Kullanıcıyı Düzenle ✏️</h2>
+
+        <form method="post" class="space-y-4">
+            <input type="hidden" name="UserID" value="@Model.UserID" />
+
+            <div>
+                <label class="block text-sm font-bold text-gray-700">Kullanıcı Adı</label>
+                <input type="text" name="Username" value="@Model.Username" required class="w-full border p-3 rounded-lg mt-1 focus:ring-2 focus:ring-yellow-500 outline-none transition">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700">Email</label>
+                <input type="email" name="Email" value="@Model.Email" required class="w-full border p-3 rounded-lg mt-1 focus:ring-2 focus:ring-yellow-500 outline-none transition">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700">Rol Değiştir</label>
+                <select name="Role" class="w-full border p-3 rounded-lg mt-1 bg-white cursor-pointer">
+                    <option value="User" selected="@(Model.Role == "User")">User</option>
+                    <option value="Admin" selected="@(Model.Role == "Admin")">Admin</option>
+                </select>
+            </div>
+
+            <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+                <label class="block text-xs font-bold text-yellow-800 mb-2 uppercase tracking-wide">Yeni Şifre (İsteğe Bağlı)</label>
+                <input type="password" name="PasswordHash" placeholder="Değiştirmek istemiyorsan boş bırak" class="w-full border p-2 rounded bg-white text-sm outline-none focus:border-yellow-500">
+            </div>
+
+            <div class="flex space-x-3 pt-4">
+                <a href="/Admin/Index" class="w-1/3 bg-gray-200 text-gray-700 py-3 rounded-lg text-center font-bold hover:bg-gray-300 transition">İptal</a>
+                <button type="submit" class="w-2/3 bg-yellow-500 text-white py-3 rounded-lg font-bold hover:bg-yellow-600 transition shadow-lg shadow-yellow-500/30">Güncelle</button>
+            </div>
+        </form>
+    </div>
+</div>

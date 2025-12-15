@@ -1,0 +1,222 @@
+﻿@model HabitTracker.Models.ProfileViewModel
+
+@{
+    ViewData["Title"] = "Profilim";
+    Layout = null;
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
+</style>
+
+<div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 py-10 px-4">
+
+    <div class="max-w-4xl mx-auto space-y-6">
+
+        <div class="bg-white/80 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-white/60 flex flex-col md:flex-row items-center md:space-x-8 text-center md:text-left">
+
+            <div class="relative group">
+                <div class="w-32 h-32 rounded-full p-1 bg-gradient-to-tr from-blue-500 to-purple-600 shadow-lg">
+                    <div class="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center border-4 border-white">
+                        @if (!string.IsNullOrEmpty(Model.User.ProfileImageUrl))
+                        {
+                            <img src="@Model.User.ProfileImageUrl" class="w-full h-full object-cover" />
+                        }
+                        else
+                        {
+                            <span class="text-4xl font-bold text-gray-400">@Model.User.Username.Substring(0, 1).ToUpper()</span>
+                        }
+                    </div>
+                </div>
+
+                <form action="/Account/UploadProfileImage" method="post" enctype="multipart/form-data" class="absolute bottom-0 right-0">
+                    <label class="bg-gray-800 text-white p-2 rounded-full cursor-pointer hover:bg-gray-600 transition shadow-md flex items-center justify-center w-10 h-10" title="Fotoğraf Değiştir">
+                        <i class="fa-solid fa-camera text-sm"></i>
+                        <input type="file" name="profileImage" class="hidden" onchange="this.form.submit()" accept="image/*">
+                    </label>
+                </form>
+            </div>
+
+            <div class="flex-1 mt-4 md:mt-0">
+                <h1 class="text-3xl font-bold text-gray-800">@Model.User.Username</h1>
+                <p class="text-gray-500">@Model.User.Email</p>
+
+                <div class="mt-4">
+                    <div class="flex justify-between items-end mb-1">
+                        <span class="text-sm font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">Seviye @Model.User.Level</span>
+                        <span class="text-xs text-gray-500">@Model.User.ExperiencePoints XP</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-1000"
+                             style="width: @(Model.User.ExperiencePoints % 100)%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 md:mt-0">
+                <a href="/Home/Index" class="px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl shadow border border-gray-200 hover:bg-gray-50 transition no-underline flex items-center">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Listeye Dön
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+            <div class="bg-white/70 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/50 flex flex-col items-center justify-center hover:scale-105 transition-transform">
+                <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xl mb-3">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <h3 class="text-3xl font-bold text-gray-800">@Model.TotalCompleted</h3>
+                <p class="text-xs text-gray-500 uppercase font-semibold mt-1">Toplam Görev</p>
+            </div>
+
+            <div class="bg-white/70 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/50 flex flex-col items-center justify-center hover:scale-105 transition-transform">
+                <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-xl mb-3">
+                    <i class="fa-solid fa-fire"></i>
+                </div>
+                <h3 class="text-3xl font-bold text-gray-800">@Model.CurrentStreak Gün</h3>
+                <p class="text-xs text-gray-500 uppercase font-semibold mt-1">Mevcut Seri</p>
+            </div>
+
+            <div class="bg-white/70 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/50 flex flex-col items-center justify-center hover:scale-105 transition-transform">
+                <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center text-xl mb-3">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <h3 class="text-3xl font-bold text-gray-800">@Model.LongestStreak Gün</h3>
+                <p class="text-xs text-gray-500 uppercase font-semibold mt-1">Rekor Seri</p>
+            </div>
+
+            <div class="bg-white/70 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/50 flex flex-col items-center justify-center hover:scale-105 transition-transform">
+                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xl mb-3">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </div>
+                <h3 class="text-3xl font-bold text-gray-800">%@Model.CompletionRate</h3>
+                <p class="text-xs text-gray-500 uppercase font-semibold mt-1">Aylık Başarı</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <div class="bg-white/80 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-white/60">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 text-center">Alışkanlık Dağılımı 📊</h3>
+                <div class="relative h-64">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white/80 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-white/60">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 text-center">Son 7 Günlük Performans 📈</h3>
+                <div class="relative h-64">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="bg-white/80 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-white/60">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fa-solid fa-medal text-yellow-500 mr-2"></i> Rozet Koleksiyonum
+            </h2>
+
+            @if (Model.EarnedBadges.Any())
+            {
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    @foreach (var ub in Model.EarnedBadges)
+                    {
+                        <div class="flex flex-col items-center p-4 bg-gray-50 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition">
+                            <div class="w-16 h-16 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center text-3xl mb-3 shadow-inner">
+                                <i class="fa-solid fa-crown"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-800 text-sm text-center">@ub.Badge.Name</h4>
+                            <p class="text-xs text-gray-500 text-center mt-1">@ub.DateEarned.ToShortDateString()</p>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-10 text-gray-400 bg-gray-50 rounded-xl border-dashed border-2 border-gray-200">
+                    <i class="fa-solid fa-lock text-3xl mb-2"></i>
+                    <p>Henüz rozet kazanılmadı. Görevleri tamamlamaya devam et!</p>
+                </div>
+            }
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const ctx1 = document.getElementById('categoryChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.Categories)),
+            datasets: [{
+                data: @Html.Raw(Json.Serialize(Model.CategoryCounts)),
+                backgroundColor: [
+                    '#818cf8', 
+                    '#f472b6', 
+                    '#34d399', 
+                    '#fbbf24', 
+                    '#60a5fa', 
+                    '#a78bfa'  
+                ],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    
+    const ctx2 = document.getElementById('weeklyChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.Last7Days)),
+            datasets: [{
+                label: 'Tamamlanan',
+                data: @Html.Raw(Json.Serialize(Model.Last7DaysActivity)),
+                borderColor: '#8b5cf6', 
+                backgroundColor: 'rgba(139, 92, 246, 0.1)', 
+                fill: true,
+                tension: 0.4, 
+                pointRadius: 5,
+                pointBackgroundColor: '#fff',
+                pointBorderColor: '#8b5cf6',
+                borderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }, 
+                    grid: { display: true, color: 'rgba(0,0,0,0.05)' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+</script>
