@@ -38,7 +38,7 @@ Yeni alışkanlıklar, kategori ve hatırlatıcı saatleri ile birlikte kolayca 
 ![Add Habit](HabitTracker/screenshots/3-add-habit.png)
 
 ### 4. 🎉 Kutlama ve Konfeti Efekti (Gamification)
-Projenin en can alıcı noktası! Kullanıcı o günkü tüm hedeflerini tamamladığında, sistem bunu görsel bir şölenle (Konfeti Yağmuru) kutlar.
+Kullanıcı o günkü tüm hedeflerini tamamladığında, sistem bunu görsel bir şölenle (Konfeti Yağmuru) kutlar.
 ![Confetti](HabitTracker/screenshots/4-confetti-celebration.png)
 
 ### 5. Profil ve İlerleme Sistemi
