@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HabitTracker.Controllers
 {
-    [Authorize] 
+    [Authorize]
     public class HabitController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -36,6 +36,7 @@ namespace HabitTracker.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+
         [HttpPost]
         public IActionResult ToggleStatus(int id)
         {
@@ -48,20 +49,20 @@ namespace HabitTracker.Controllers
 
             var today = DateTime.Today;
             var existingCompletion = _context.HabitCompletions
-                                             .FirstOrDefault(hc => hc.HabitID == id && hc.CompletionDate == today);
+                                            .FirstOrDefault(hc => hc.HabitID == id && hc.CompletionDate == today);
 
             if (existingCompletion != null)
             {
-
                 _context.HabitCompletions.Remove(existingCompletion);
 
                 user.ExperiencePoints = Math.Max(0, user.ExperiencePoints - 10);
 
                 user.Level = 1 + (user.ExperiencePoints / 100);
+
+                _context.SaveChanges();
             }
             else
             {
-
                 var completion = new HabitCompletion
                 {
                     HabitID = id,
@@ -70,12 +71,14 @@ namespace HabitTracker.Controllers
                 _context.HabitCompletions.Add(completion);
 
                 user.ExperiencePoints += 10;
-
                 user.Level = 1 + (user.ExperiencePoints / 100);
+
+                _context.SaveChanges();
+
+                CheckBadges(userId);
             }
 
-            _context.SaveChanges();
-            return Ok(); 
+            return Ok();
         }
 
         private void CheckBadges(int userId)
@@ -84,12 +87,11 @@ namespace HabitTracker.Controllers
 
             int completedCount = _context.HabitCompletions.Count(hc => hc.Habit.UserID == userId);
 
-
             int badgeIdToEarn = 0;
 
-            if (completedCount == 1) badgeIdToEarn = 1;      
-            else if (completedCount == 5) badgeIdToEarn = 2; 
-            else if (completedCount == 10) badgeIdToEarn = 3; 
+            if (completedCount == 1) badgeIdToEarn = 1;
+            else if (completedCount == 5) badgeIdToEarn = 2;
+            else if (completedCount == 10) badgeIdToEarn = 3;
             else if (completedCount == 50) badgeIdToEarn = 4;
 
             if (badgeIdToEarn > 0)
@@ -109,6 +111,7 @@ namespace HabitTracker.Controllers
                 }
             }
         }
+
         [HttpPost]
         public IActionResult Delete(int id)
         {
@@ -118,7 +121,6 @@ namespace HabitTracker.Controllers
 
             if (habit != null)
             {
-
                 var completionCount = _context.HabitCompletions.Count(hc => hc.HabitID == id);
 
                 if (completionCount > 0)
@@ -141,13 +143,14 @@ namespace HabitTracker.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+
         [HttpGet]
         public IActionResult Edit(int id)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             var habit = _context.Habits.Include(h => h.Reminder)
-                                       .FirstOrDefault(h => h.HabitID == id && h.UserID == userId);
+                                   .FirstOrDefault(h => h.HabitID == id && h.UserID == userId);
 
             if (habit == null) return NotFound();
 
